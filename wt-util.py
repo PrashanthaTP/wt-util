@@ -4,6 +4,7 @@ import os
 import shutil
 import logging
 import tempfile
+import sys
 
 from datetime import datetime
 
@@ -26,10 +27,33 @@ def parse_cmd_arguments():
                         type=str,
                         help="full path to windows terminal settings.json",
                         required=True)
+    parser.add_argument("-p","--profile",
+                        type=str,
+                        help="wt profile name",
+                        required=True)
+    parser.add_argument("-k","--key",
+                        type=str,
+                        help="settings key in the given profile to be updated",
+                        required=True)
+    parser.add_argument("-v","--value",
+                        type=str,
+                        help="new value to be updated for the given key",
+                        required=True)
+    parser.add_argument("-o","--output-file",
+                        type=str,
+                        help="Updated settings will be written to this file.If not given original settings file will be overwritten",
+                        default="")
     return parser.parse_args()
 
 def set_options(cmd_options):
     options["original_settings_filepath"] = cmd_options.settings
+    options["profile_name"] = cmd_options.profile
+    options["settings_key"] = cmd_options.key
+    options["settings_value"] = cmd_options.value
+    if(cmd_options.output_file!=""):
+        options["output_file"] = cmd_options.output_file
+    else:
+        options["output_file"] = cmd_options.settings
 
 def create_backup_settings(backup_filepath):
     logger.debug("Creating backup of settings json")
@@ -83,12 +107,35 @@ def write_json(d:dict,json_filepath:str):
     with open(json_filepath,'w') as file:
         json.dump(d,file,indent=4)
 
+def get_profile_idx(profiles_list:list,profile_name:str)->int:
+    for idx,profile in enumerate(profiles_list):
+        if(profile["name"]==profile_name):
+            return idx
+    raise ValueError("There is no profile in settings with name %(name)s"%{"name":profile_name})
+    
+
+def get_updated_settings()->dict:
+    settings_dict = load_json(options["original_settings_filepath"])
+    profile_idx = get_profile_idx(settings_dict["profiles"]["list"],options["profile_name"])
+    sys.stdout.write("Profile: {}\n".format(options["profile_name"]))
+    sys.stdout.write("Key: {}\n".format(options["settings_key"]))
+    sys.stdout.write("Previous value: {}\n".format(settings_dict["profiles"]["list"][profile_idx].get(options["settings_key"],'""')))
+    sys.stdout.write("New value: {}\n".format(options["settings_value"]))
+
+    settings_dict["profiles"]["list"][profile_idx][options["settings_key"]] = options["settings_value"] = options["settings_value"]
+    return settings_dict
+        
+def write_settings(settings_dict:dict):
+    write_json(settings_dict,options["output_file"])
+    sys.stdout.write("Settings updated successfully\n")
 
 def main():
     cmd_options = parse_cmd_arguments()
     set_options(cmd_options)
     check_options()
     create_backup_settings(get_backup_filepath())
+    new_settings = get_updated_settings()
+    write_settings(new_settings)
 
 if __name__ == "__main__":
     main()
