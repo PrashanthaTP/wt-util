@@ -11,6 +11,12 @@ Script to update windows terminal settings json
 
 optional arguments:
   -h, --help            show this help message and exit
+  -o OUTPUT_FILE, --output-file OUTPUT_FILE
+                        Updated settings will be written to this file.If not
+                        given original settings file will be overwritten
+                        (default: )
+
+mandatory arguments:
   -s SETTINGS, --settings SETTINGS
                         full path to windows terminal settings.json (default:
                         None)
@@ -21,10 +27,6 @@ optional arguments:
   -v VALUE, --value VALUE
                         new value to be updated for the given key (default:
                         None)
-  -o OUTPUT_FILE, --output-file OUTPUT_FILE
-                        Updated settings will be written to this file.If not
-                        given original settings file will be overwritten
-                        (default: )
 ```
 
 ## Example
