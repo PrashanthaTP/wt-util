@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import shutil
 import logging
@@ -73,6 +74,15 @@ def get_backup_filepath():
     backup_filepath = os.path.join(options["backup_dir"],
                                    "settings_bk_{}.json".format(get_timestr()))
     return backup_filepath
+
+def load_json(filepath:str)->dict:
+    with open(filepath,'r') as file:
+        return json.load(file)
+
+def write_json(d:dict,json_filepath:str):
+    with open(json_filepath,'w') as file:
+        json.dump(d,file,indent=4)
+
 
 def main():
     cmd_options = parse_cmd_arguments()
