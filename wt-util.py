@@ -24,19 +24,24 @@ def parse_cmd_arguments():
     parser = argparse.ArgumentParser(prog="wt-util",
                                      description="Script to update windows terminal settings json",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-s", "--settings",
+
+    # https://stackoverflow.com/questions/24180527/argparse-required-arguments-listed-under-optional-arguments
+
+    mandatoryArgs = parser.add_argument_group("mandatory arguments")
+
+    mandatoryArgs.add_argument("-s", "--settings",
                         type=str,
                         help="full path to windows terminal settings.json",
                         required=True)
-    parser.add_argument("-p", "--profile",
+    mandatoryArgs.add_argument("-p", "--profile",
                         type=str,
                         help="wt profile name",
                         required=True)
-    parser.add_argument("-k", "--key",
+    mandatoryArgs.add_argument("-k", "--key",
                         type=str,
                         help="settings key in the given profile to be updated",
                         required=True)
-    parser.add_argument("-v", "--value",
+    mandatoryArgs.add_argument("-v", "--value",
                         type=str,
                         help="new value to be updated for the given key",
                         required=True)
